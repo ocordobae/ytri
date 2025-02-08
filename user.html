@@ -111,8 +111,10 @@
         }
 
         function deleteUser(index) {
-            users.splice(index, 1);
-            saveUsers();
+            if (confirm("Effacer Utilisateur?")) {
+                users.splice(index, 1);
+                saveUsers();
+            }
         }
 
         function time_format(segundos) {
