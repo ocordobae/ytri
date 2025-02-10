@@ -17,6 +17,24 @@
             loadUsers();
             $("#statusFilter").on("change", filterUsers);
             $("#saveBtn").on("click", saveUser);
+            $("#groupBtn").on("click", function() {
+                let checkedIds = getCheckedIds();
+                let hashId = createHashId(checkedIds);
+                //alert($("#groupNumber").val());
+                let groupedUsers = greedyGrouping(users, checkedIds, $("#groupNumber").val()); // Change 2 to the desired number of groups
+
+                let results = "<h4>Groupes:</h4>";
+                groupedUsers.forEach((group, index) => {
+                    results += `<h5>Group ${index + 1} (Temp accummulé : ${group.reduce((sum, user) => sum + user.data1, 0)} secs):</h5>`;
+                    results += "<ul>";
+                    group.forEach(user => {
+                        results += `<li>${user.name} ${user.last_name} (temps 50m: ${user.data1} secs)</li>`;
+                    });
+                    results += "</ul>";
+                });
+
+                $("#groupResults").html(results);
+            });
         });
 
         function loadUsers() {
@@ -119,15 +137,40 @@
 
         function time_format(segundos) {
             if (segundos==null) return "0:00";
-            // Calcular los minutos y segundos
             const minutos = Math.floor(segundos / 60);
             const segundosRestantes = segundos % 60;
-
-            // Formatear los segundos para que siempre tengan dos dígitos
             const segundosFormateados = segundosRestantes < 10 ? `0${segundosRestantes}` : segundosRestantes;
-
-            // Devolver la cadena en formato "minutos:segundos"
             return `${minutos}:${segundosFormateados}`;
+        }
+
+        function getCheckedIds() {
+            let checkedIds = [];
+            $("#userTable tbody tr").each(function() {
+                if ($(this).find("input[type='checkbox']").is(":checked")) {
+                    checkedIds.push($(this).find("input[type='checkbox']").attr("id"));
+                }
+            });
+            return checkedIds;
+        }
+
+        function createHashId(ids) {
+            return ids.join("-");
+        }
+
+        function greedyGrouping(users, checkedIds, groupCount) {
+            let groupedUsers = Array.from({ length: groupCount }, () => []);
+            let sums = Array.from({ length: groupCount }, () => 0);
+
+            let filteredUsers = users.filter(user => checkedIds.includes(user.id.toString()));
+            filteredUsers.sort((a, b) => b.data1 - a.data1);
+
+            filteredUsers.forEach(user => {
+                let minSumIndex = sums.indexOf(Math.min(...sums));
+                groupedUsers[minSumIndex].push(user);
+                sums[minSumIndex] += user.data1;
+            });
+
+            return groupedUsers;
         }
     </script>
 </head>
@@ -170,5 +213,18 @@
         <div class="col"><input type="number" id="status" class="form-control" placeholder="status"></div>
         <div class="col"><a href="#" class="text-success" id="saveBtn"><i class='fa fa-2x fa-floppy-o' aria-hidden='true'></i></a></div>
     </div>
+    <select id="groupNumber">
+        <option value="2" selected>2</option>
+        <option value="3" >3</option>
+        <option value="4" >4</option>
+        <option value="5" >5</option>
+        <option value="6" >6</option>
+        <option value="7" >7</option>
+        <option value="8" >8</option>
+        <option value="9" >9</option>
+        <option value="10" >10</option> 
+    </select>
+    <button id="groupBtn" class="btn btn-primary mt-3">Group Users</button>
+    <div id="groupResults" class="mt-3"></div>
 </body>
 </html>
