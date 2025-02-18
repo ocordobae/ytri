@@ -45,7 +45,41 @@
                     $(this).text('Ajouter/Editer Utilisateur');
                 }
             });
+
+            $(document).on("change", "input[type='checkbox']", updateCheckboxCount);
+
         });
+
+        let hideUnselected = false; // Estado inicial: mostrar todo
+
+
+        $(document).ready(function () {
+            $(document).on("change", "input[type='checkbox']", updateCheckboxCount);
+            $("#toggleUnselectedBtn").on("click", toggleUnselectedRows);
+        });
+
+        function toggleUnselectedRows() {
+            hideUnselected = !hideUnselected; // Alternar estado
+
+            $("#userTable tbody tr").each(function () {
+                let isChecked = $(this).find("input[type='checkbox']").is(":checked");
+                if (!isChecked) {
+                    $(this).toggle(!hideUnselected); // Ocultar si no está seleccionado y la opción está activa
+                }
+            });
+
+            $("#toggleUnselectedBtn").html(hideUnselected ? "<i class='fas fa-eye-slash'></i>" : "<i class='fas fa-eye'></i>");
+        }
+
+        function updateCheckboxCount() {
+            let count = $("input[type='checkbox']:checked").length;
+            $("#checkboxCount").text(`Seleccionados: ${count}`);
+        }
+
+        function updateCheckboxCount() {
+            let count = $("input[type='checkbox']:checked").length;
+            $("#checkboxCount").text(`Sel: ${count}`);
+        }
 
         function loadUsers() {
             $.ajax({
@@ -214,9 +248,21 @@
         .hidden-column {
             display: none; /* ocultar columnas */
         }
+        #checkboxCount {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 18px;
+    font-weight: bold;
+}
     </style>
 </head>
 <body class="container">
+    <div id="checkboxCount">Sel: 0</div>
     <h2 class="mt-3">YTRI Nageurs</h2>
     <div class="mb-3">
         <label for="statusFilter" class="form-label">Filtrer par status:</label>
@@ -230,7 +276,7 @@
     <table class="table table-bordered table-condensed" id="userTable">
         <thead>
             <tr>
-                <th>*</th>
+                <th><a href="javascript:void(0);" id="toggleUnselectedBtn"><i class="fas fa-eye"></i></a></th>
                 <th onclick="sortTable('id')"         >ID</th>
                 <th onclick="sortTable('name')"       >Prenom</th>
                 <th onclick="sortTable('last_name')"  >Nom</th>
@@ -276,7 +322,7 @@
                 <input type="number" id="status" class="form-control" placeholder="status">
             </div>
             <div class="col-12 col-md-6 col-lg-3 mb-2">
-                <a href="#" class="text-success" id="saveBtn"><i class='fa fa-2x fa-floppy-o' aria-hidden='true'></i></a>
+                <a href="javascript:void(0);"  class="text-success" id="saveBtn"><i class='fa fa-2x fa-floppy-o' aria-hidden='true'></i></a>
             </div>
         </div>
     </div>
