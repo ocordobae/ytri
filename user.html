@@ -137,8 +137,10 @@
         }
 
         function saveUser() {
+            const maxId = users.length > 0 ? Math.max(...users.map(user => user.id)) : 0;
+            
             const user = {
-                id: editIndex !== null ? users[editIndex].id : users.length + 1,
+                id: editIndex !== null ? users[editIndex].id : maxId + 1,
                 name: $("#name").val(),
                 last_name: $("#last_name").val(),
                 age: parseInt($("#age").val()),
